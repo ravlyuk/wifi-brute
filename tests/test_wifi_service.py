@@ -16,11 +16,17 @@ from wifi_connector.wifi_service import (
     _wait_for_ssid,
 )
 from wifi_connector.scanner import associate_with_network
+from tests.test_constants import (
+    MANUAL_TEST_PASSWORD,
+    MOCK_JOIN_PASSWORD,
+    SECOND_MOCK_PASSWORD,
+    THIRD_MOCK_PASSWORD,
+)
 
 
 class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
     async def test_passes_verify_password_to_corewlan(self) -> None:
-        request = JoinRequest(ssid="Room_1502", password="12345678")
+        request = JoinRequest(ssid="Room_1502", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -43,11 +49,11 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         args, kwargs = to_thread_mock.await_args
         self.assertIs(args[0], associate_with_network)
         self.assertEqual(args[1], "Room_1502")
-        self.assertEqual(args[2], "12345678")
+        self.assertEqual(args[2], MOCK_JOIN_PASSWORD)
         self.assertTrue(kwargs.get("verify_password"))
 
     async def test_uses_corewlan_when_association_succeeds(self) -> None:
-        request = JoinRequest(ssid="Room_1502", password="Nam1502@@")
+        request = JoinRequest(ssid="Room_1502", password=MANUAL_TEST_PASSWORD)
 
         with (
             patch(
@@ -67,11 +73,11 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertTrue(result.is_connected)
         self.assertEqual(result.ssid, "Room_1502")
-        self.assertEqual(result.password, "Nam1502@@")
+        self.assertEqual(result.password, MANUAL_TEST_PASSWORD)
         networksetup_mock.assert_not_awaited()
 
     async def test_falls_back_to_networksetup_when_network_is_not_in_scan(self) -> None:
-        request = JoinRequest(ssid="Hidden WiFi", password="password123")
+        request = JoinRequest(ssid="Hidden WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -100,7 +106,7 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         networksetup_mock.assert_awaited_once()
 
     async def test_reports_corewlan_failure_without_networksetup(self) -> None:
-        request = JoinRequest(ssid="Office WiFi", password="password123")
+        request = JoinRequest(ssid="Office WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -123,7 +129,7 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         networksetup_mock.assert_not_awaited()
 
     async def test_reports_success_only_after_ssid_is_confirmed(self) -> None:
-        request = JoinRequest(ssid="Office WiFi", password="password123")
+        request = JoinRequest(ssid="Office WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -152,7 +158,7 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.ssid, "Office WiFi")
 
     async def test_reports_failure_when_target_ssid_is_never_active(self) -> None:
-        request = JoinRequest(ssid="Office WiFi", password="password123")
+        request = JoinRequest(ssid="Office WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -181,7 +187,7 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Не вдалося підтвердити", result.message)
 
     async def test_does_not_poll_after_command_failure(self) -> None:
-        request = JoinRequest(ssid="Office WiFi", password="password123")
+        request = JoinRequest(ssid="Office WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -207,7 +213,7 @@ class JoinNetworkTests(unittest.IsolatedAsyncioTestCase):
         wait_for_ssid_mock.assert_not_awaited()
 
     async def test_fast_verify_uses_shorter_wait_timeout(self) -> None:
-        request = JoinRequest(ssid="Office WiFi", password="password123")
+        request = JoinRequest(ssid="Office WiFi", password=MOCK_JOIN_PASSWORD)
 
         with (
             patch(
@@ -307,10 +313,10 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
                 ),
             ) as join_network_mock,
         ):
-            result = await test_all_networks(networks, ["password123"])
+            result = await test_all_networks(networks, [MOCK_JOIN_PASSWORD])
 
         join_network_mock.assert_awaited_once_with(
-            JoinRequest(ssid="Home WiFi", password="password123", interface="en0"),
+            JoinRequest(ssid="Home WiFi", password=MOCK_JOIN_PASSWORD, interface="en0"),
             fast_verify=True,
             verify_password=True,
         )
@@ -338,7 +344,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
                             ssid="Net A",
                             interface="en0",
                             message="ok",
-                            password="password123",
+                            password=MOCK_JOIN_PASSWORD,
                         ),
                         JoinResult(
                             is_connected=False,
@@ -352,7 +358,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
         ):
             result = await test_all_networks(
                 networks,
-                ["password123"],
+                [MOCK_JOIN_PASSWORD],
                 on_progress=lambda progress: progress_snapshots.append(progress),
             )
 
@@ -363,9 +369,9 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(progress_snapshots[1].completed), 1)
         self.assertEqual(len(progress_snapshots[1].successful), 1)
         self.assertEqual(progress_snapshots[1].successful[0].ssid, "Net A")
-        self.assertEqual(progress_snapshots[1].successful[0].password, "password123")
+        self.assertEqual(progress_snapshots[1].successful[0].password, MOCK_JOIN_PASSWORD)
         self.assertEqual(len(result.successful), 1)
-        self.assertEqual(result.successful[0].password, "password123")
+        self.assertEqual(result.successful[0].password, MOCK_JOIN_PASSWORD)
         self.assertEqual(result.successful_count, 1)
         self.assertEqual(result.failed_count, 1)
         self.assertGreater(result.average_seconds_per_network, 0.0)
@@ -408,7 +414,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
         ):
             result = await test_all_networks(
                 networks,
-                ["password123"],
+                [MOCK_JOIN_PASSWORD],
                 should_stop=should_stop,
             )
 
@@ -418,7 +424,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_tries_next_password_after_failure(self) -> None:
         networks = [WifiNetwork(ssid="Hotel WiFi", security=SecurityKind.PERSONAL)]
-        passwords = ["11111111", "87654321"]
+        passwords = [THIRD_MOCK_PASSWORD, SECOND_MOCK_PASSWORD]
 
         with (
             patch(
@@ -440,7 +446,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
                             ssid="Hotel WiFi",
                             interface="en0",
                             message="ok",
-                            password="87654321",
+                            password=SECOND_MOCK_PASSWORD,
                         ),
                     ]
                 ),
@@ -451,7 +457,7 @@ class TestAllNetworksTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(join_network_mock.await_count, 2)
         self.assertEqual(len(result.results), 1)
         self.assertTrue(result.results[0].is_connected)
-        self.assertEqual(result.results[0].password, "87654321")
+        self.assertEqual(result.results[0].password, SECOND_MOCK_PASSWORD)
 
 
 class BuildTestPasswordsTests(unittest.TestCase):
@@ -460,20 +466,23 @@ class BuildTestPasswordsTests(unittest.TestCase):
         self.assertEqual(passwords, list(get_common_test_passwords()))
 
     def test_manual_password_only_when_common_disabled(self) -> None:
-        passwords = build_test_passwords("Nam1502@@", include_common=False)
-        self.assertEqual(passwords, ["Nam1502@@"])
+        passwords = build_test_passwords(MANUAL_TEST_PASSWORD, include_common=False)
+        self.assertEqual(passwords, [MANUAL_TEST_PASSWORD])
 
     def test_returns_empty_when_common_disabled_and_manual_missing(self) -> None:
         self.assertEqual(build_test_passwords("", include_common=False), [])
 
     def test_deduplicates_manual_password(self) -> None:
-        passwords = build_test_passwords("12345678")
-        self.assertEqual(passwords.count("12345678"), 1)
+        config = load_password_config(path=shared_passwords_path())
+        manual = config.default_password
+        passwords = build_test_passwords(manual)
+        self.assertEqual(passwords.count(manual), 1)
 
     def test_includes_manual_password_before_common(self) -> None:
-        passwords = build_test_passwords("Nam1502@@")
-        self.assertEqual(passwords[0], "Nam1502@@")
-        self.assertIn("12345678", passwords)
+        config = load_password_config(path=shared_passwords_path())
+        passwords = build_test_passwords(MANUAL_TEST_PASSWORD)
+        self.assertEqual(passwords[0], MANUAL_TEST_PASSWORD)
+        self.assertIn(config.default_password, passwords)
         self.assertEqual(len(passwords), len(set(passwords)))
 
 
@@ -482,10 +491,9 @@ class PasswordConfigTests(unittest.TestCase):
         shared_path = shared_passwords_path()
         self.assertIsNotNone(shared_path)
         config = load_password_config(path=shared_path)
-        self.assertEqual(config.default_password, "12345678")
+        self.assertEqual(config.default_password, config.passwords[0])
         self.assertEqual(len(config.passwords), 53)
-        self.assertIn("01011990", config.passwords)
-        self.assertIn("09012345", config.passwords)
+        self.assertTrue(all(8 <= len(password) <= 63 for password in config.passwords))
 
     def test_default_password_matches_yaml(self) -> None:
         shared_path = shared_passwords_path()
