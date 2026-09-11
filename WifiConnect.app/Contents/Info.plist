@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>uk</string>
+	<key>CFBundleExecutable</key>
+	<string>wifi-connect</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.wifi-connector</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Wi-Fi Connect</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Потрібен доступ до локації, щоб macOS показав назви Wi‑Fi мереж поблизу.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Потрібен доступ до локації, щоб macOS показав назви Wi‑Fi мереж поблизу.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Потрібен доступ до локації, щоб macOS показав назви Wi‑Fi мереж поблизу.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Потрібен доступ до локації, щоб macOS показав назви Wi‑Fi мереж поблизу.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Потрібен доступ лише якщо середовище Python лежить у папці Documents.</string>
+</dict>
+</plist>
